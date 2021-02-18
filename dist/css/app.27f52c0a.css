@@ -1,0 +1,1 @@
+@import url(https://fonts.googleapis.com/css2?family=Orbitron&display=swap);.vuertual-numeric-keyboard{display:grid;grid-template-columns:auto auto auto;height:80%;grid-gap:3px}.vuertual-numeric-keyboard .btn{font-weight:700}.number-display,.score-display{font-family:Orbitron,sans-serif}.score-display{font-size:72px}
