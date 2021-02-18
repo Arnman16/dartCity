@@ -21,5 +21,4 @@ npm run lint
 ```
 
 ### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
-"# dartCity" 
+[View this App](https://arnman16.github.io/dartcity/dist/ "Dart City")
