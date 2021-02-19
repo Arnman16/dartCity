@@ -5,7 +5,7 @@
         <v-menu
           v-model="newGame"
           :close-on-content-click="false"
-          :nudge-width="200"
+          :nudge-width="300"
           offset-y
         >
           <template v-slot:activator="{ on, attrs }">
@@ -13,18 +13,18 @@
               ><v-icon>mdi-restart</v-icon></v-btn
             >
           </template>
-          <v-card>
+          <v-card color="#FEF9E7">
             <v-card-title primary-title> NEW GAME </v-card-title>
             <v-container class="grey lighten-5">
               <v-row no-gutters>
-                <template v-for="gameMode in gameModes">
+                <template v-for="(gameMode, index) in gameModes">
                   <v-col :key="gameMode">
                     <v-card
                       @click="startNewGame(gameMode)"
                       class="pa-2"
                       outlined
                       tile
-                    >
+                      ><span class="text-caption">[{{ index + 1 }}]</span>
                       {{ gameMode }}
                     </v-card>
                   </v-col>
@@ -314,10 +314,12 @@ export default {
       this.scores.scoreB.name = localStorage.getItem("playerB");
     }
     window.addEventListener("keyup", (e) => {
+      3;
       if (e.key == "Enter") {
         this.enter();
       } else if (e.key == "Backspace") {
         this.backspace();
+        3333333;
       } else if (e.key == "-") {
         this.undo();
       } else if (e.key == "+") {
@@ -335,6 +337,9 @@ export default {
         if (e.key == "4") {
           this.startNewGame(1001);
         }
+      } else if (this.winnerDialog == true) {
+        this.winnerDialog = false;
+        this.newGame = true;
       } else {
         const num = e.key.replace(/[^0-9]/g, "");
         if (num) {

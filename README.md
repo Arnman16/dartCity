@@ -20,5 +20,4 @@ npm run build
 npm run lint
 ```
 
-### Customize configuration
 [View this App](https://arnman16.github.io/dartcity/dist/ "Dart City")
