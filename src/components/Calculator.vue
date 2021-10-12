@@ -119,6 +119,7 @@
           :color="scores.scoreA.color"
           width="37.5%"
           class="score-display"
+          @click="switchTurn"
         >
           <v-container fill-height align-content-center justify-center>
             <h3 class="text-center">{{ scores.scoreA.score }}</h3>
@@ -183,9 +184,121 @@
           :color="scores.scoreB.color"
           width="37.5%"
           class="score-display"
+          @click="switchTurn"
           ><v-container fill-height align-content-center justify-center>
             <h3 class="text-center">{{ scores.scoreB.score }}</h3>
           </v-container>
+        </v-card>
+      </v-row>
+      <v-row>
+        <v-card
+          flat
+          color="blue-grey darken-4"
+          class="mt-2"
+          width="37.5%"
+          dark
+          style="opacity: 0.9"
+        >
+          <v-system-bar dark>
+            <v-container fluid class="text-center font-weight-black pa-1 ma-0"
+              >Averages</v-container
+            >
+          </v-system-bar>
+          <v-row>
+            <v-col class="pr-0">
+              <v-card color="transparent" flat tile>
+                <v-system-bar color="rgba(51, 253, 255,0.2)">
+                  <v-container
+                    fluid
+                    class="text-center font-weight-bold pa-1 ma-0"
+                    >Game</v-container
+                  >
+                </v-system-bar>
+                <v-container fluid class="text-center pa-1 ma-0">
+                  <h3 class="text-center">
+                    {{
+                      (
+                        (gameMode - scores.scoreA.score) /
+                        scores.scoreA.turns
+                      ).toFixed(2)
+                    }}
+                  </h3>
+                </v-container>
+              </v-card>
+            </v-col>
+            <v-col class="pl-0">
+              <v-card color="transparent" flat tile>
+                <v-system-bar color="rgba(243, 51, 255,0.2)">
+                  <v-container
+                    fluid
+                    class="text-center font-weight-bold pa-1 ma-0"
+                    @dblclick="resetStoredScore(scores.scoreA)"
+                    >Overall</v-container
+                  >
+                </v-system-bar>
+                <v-container fluid class="text-center pa-1 ma-0">
+                  <h3 class="text-center">
+                    {{ scores.scoreA.average.toFixed(2) }}
+                  </h3></v-container
+                >
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-card>
+        <v-spacer></v-spacer>
+        <v-card
+          flat
+          color="blue-grey darken-4"
+          class="mt-2"
+          width="37.5%"
+          dark
+          style="opacity: 0.9"
+        >
+          <v-system-bar dark>
+            <v-container fluid class="text-center font-weight-black pa-1 ma-0"
+              >Averages</v-container
+            >
+          </v-system-bar>
+          <v-row>
+            <v-col class="pr-0">
+              <v-card color="transparent" flat tile>
+                <v-system-bar color="rgba(51, 253, 255,0.2)">
+                  <v-container
+                    fluid
+                    class="text-center font-weight-bold pa-1 ma-0"
+                    >Game</v-container
+                  >
+                </v-system-bar>
+                <v-container class="text-center pa-1 ma-0">
+                  <h3 class="text-center">
+                    {{
+                      (
+                        (gameMode - scores.scoreB.score) /
+                        scores.scoreB.turns
+                      ).toFixed(2)
+                    }}
+                  </h3>
+                </v-container>
+              </v-card>
+            </v-col>
+            <v-col class="pl-0">
+              <v-card color="transparent" flat tile>
+                <v-system-bar color="rgba(243, 51, 255,0.2)">
+                  <v-container
+                    fluid
+                    class="text-center font-weight-bold pa-1 ma-0"
+                    @dblclick="resetStoredScore(scores.scoreB)"
+                    >Overall</v-container
+                  >
+                </v-system-bar>
+                <v-container fluid class="text-center pa-1 ma-0">
+                  <h3 class="text-center">
+                    {{ scores.scoreB.average.toFixed(2) }}
+                  </h3></v-container
+                >
+              </v-card>
+            </v-col>
+          </v-row>
         </v-card>
       </v-row>
     </v-container>
@@ -215,6 +328,7 @@ export default {
     return {
       keys: [1, 2, 3, 4, 5, 6, 7, 8, 9],
       gameModes: [301, 501, 701, 1001],
+      gameMode: 501,
       total: 0,
       winner: "Nobody",
       menuA: false,
@@ -227,8 +341,17 @@ export default {
           score: 501,
           color: "#EDF96E",
           active: true,
+          turns: 0,
+          average: 0,
         },
-        scoreB: { name: "Player B", score: 501, color: "white", active: false },
+        scoreB: {
+          name: "Player B",
+          score: 501,
+          color: "white",
+          active: false,
+          turns: 0,
+          average: 0,
+        },
       },
       lastScores: {},
     };
@@ -246,6 +369,13 @@ export default {
       this.total = (this.total - (this.total % 10)) / 10;
     },
     switchTurn() {
+      if (this.scores.scoreA.active) {
+        this.scores.scoreA.color = "white";
+        this.scores.scoreB.color = "#EDF96E";
+      } else {
+        this.scores.scoreB.color = "white";
+        this.scores.scoreA.color = "#EDF96E";
+      }
       this.scores.scoreA.active = !this.scores.scoreA.active;
       this.scores.scoreB.active = !this.scores.scoreB.active;
     },
@@ -254,6 +384,7 @@ export default {
       this.menuB = false;
       localStorage.setItem("playerA", this.scores.scoreA.name);
       localStorage.setItem("playerB", this.scores.scoreB.name);
+      this.getLocalAverage();
     },
     enter() {
       this.lastScores = JSON.parse(JSON.stringify(this.scores));
@@ -264,8 +395,7 @@ export default {
           this.scores.scoreA.score = this.scores.scoreA.score - this.total;
           this.total = 0;
           this.switchTurn();
-          this.scores.scoreA.color = "white";
-          this.scores.scoreB.color = "#EDF96E";
+          this.scores.scoreA.turns++;
         }
       } else {
         if (this.scores.scoreB.score - this.total < 0) {
@@ -274,17 +404,18 @@ export default {
           this.scores.scoreB.score = this.scores.scoreB.score - this.total;
           this.total = 0;
           this.switchTurn();
-          this.scores.scoreB.color = "white";
-          this.scores.scoreA.color = "#EDF96E";
+          this.scores.scoreB.turns++;
         }
       }
       if (this.scores.scoreB.score == 0) {
         this.winner = this.scores.scoreB.name;
         this.winnerDialog = true;
+        this.saveScoresLocal();
       }
       if (this.scores.scoreA.score == 0) {
         this.winner = this.scores.scoreA.name;
         this.winnerDialog = true;
+        this.saveScoresLocal();
       }
     },
     undo() {
@@ -296,9 +427,69 @@ export default {
         this.total = 0;
       }
     },
+    resetStoredScore(player) {
+      localStorage.removeItem(player.name);
+      player.average = 0;
+    },
+    saveScoresLocal() {
+      let statsA = {
+        pointsScored: 0,
+        turns: 0,
+      };
+      let statsB = {
+        pointsScored: 0,
+        turns: 0,
+      };
+      if (
+        Object.prototype.hasOwnProperty.call(
+          localStorage,
+          this.scores.scoreA.name
+        )
+      )
+        statsA = JSON.parse(localStorage.getItem(this.scores.scoreA.name));
+      if (
+        Object.prototype.hasOwnProperty.call(
+          localStorage,
+          this.scores.scoreB.name
+        )
+      )
+        statsB = JSON.parse(localStorage.getItem(this.scores.scoreB.name));
+      statsA.pointsScored += this.gameMode - this.scores.scoreA.score;
+      statsA.turns += this.scores.scoreA.turns;
+      statsB.pointsScored += this.gameMode - this.scores.scoreB.score;
+      statsB.turns += this.scores.scoreB.turns;
+      localStorage.setItem(this.scores.scoreA.name, JSON.stringify(statsA));
+      localStorage.setItem(this.scores.scoreB.name, JSON.stringify(statsB));
+      this.scores.scoreA.average = statsA.pointsScored / statsA.turns;
+      this.scores.scoreB.average = statsA.pointsScored / statsB.turns;
+    },
+    getLocalAverage() {
+      if (
+        Object.prototype.hasOwnProperty.call(
+          localStorage,
+          this.scores.scoreA.name
+        )
+      ) {
+        var statsA = JSON.parse(localStorage.getItem(this.scores.scoreA.name));
+        this.scores.scoreA.average = statsA.pointsScored / statsA.turns;
+      } else this.scores.scoreA.average = 0;
+
+      if (
+        Object.prototype.hasOwnProperty.call(
+          localStorage,
+          this.scores.scoreB.name
+        )
+      ) {
+        var statsB = JSON.parse(localStorage.getItem(this.scores.scoreB.name));
+        this.scores.scoreB.average = statsA.pointsScored / statsB.turns;
+      } else this.scores.scoreB.average = 0;
+    },
     startNewGame(gameMode) {
       this.scores.scoreA.score = gameMode;
       this.scores.scoreB.score = gameMode;
+      this.scores.scoreA.turns = 0;
+      this.scores.scoreB.turns = 0;
+      this.gameMode = gameMode;
       this.total = 0;
       this.newGame = false;
     },
@@ -313,6 +504,7 @@ export default {
       // get stored name
       this.scores.scoreB.name = localStorage.getItem("playerB");
     }
+    this.getLocalAverage();
     window.addEventListener("keyup", (e) => {
       3;
       if (e.key == "Enter") {

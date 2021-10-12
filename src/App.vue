@@ -6,6 +6,7 @@
 
     <v-main>
       <v-container fill-height fluid>
+      <!-- <v-container fill-height fluid style="background-color: black"> -->
         <v-row align="center" justify="center">
           <v-card class="mb-10" flat width="100%">
             <Calculator msg="TEST" />
@@ -31,3 +32,9 @@ export default {
   }),
 };
 </script>
+<style>
+html {
+  background-color: black;
+  overflow: hidden;
+}
+</style>
